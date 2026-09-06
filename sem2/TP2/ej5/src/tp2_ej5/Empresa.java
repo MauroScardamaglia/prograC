@@ -21,9 +21,15 @@ public class Empresa {
 	public void añadirCategoria(String nombre, double sueldo) {
 		categorias.add(new Categoria(nombre, sueldo));
 	}
+	public void añadirCategoria(Categoria categoria) {
+		categorias.add(categoria);
+	}
 	
 	public void añadirColectivo(String modelo) {
 		colectivos.add(new Colectivo(modelo));
+	}
+	public void añadirColectivo(Colectivo colectivo) {
+		colectivos.add(colectivo);
 	}
 	
 	public void añadirChoferes(Categoria categoria, String nombre, String calle, int altura) {
@@ -33,6 +39,9 @@ public class Empresa {
 	public void añadirChoferes(Categoria categoria, String nombre, String calle, int altura, Colectivo colectivo) {
 		Domicilio dom = new Domicilio(calle, altura);
 		this.choferes.add(new Chofer(categoria, dom, nombre, colectivo));
+	}
+	public void añadirChoferes(Chofer chofer) {
+		choferes.add(chofer);
 	}
 	
 	public int cantChoferesSinColectivo() {
@@ -49,7 +58,7 @@ public class Empresa {
 	}
 	
 	public ArrayList<Chofer> choferesMismaCategoria(Categoria categoria){
-		ArrayList<Chofer> choferes = new ArrayList<>;
+		ArrayList<Chofer> choferes = new ArrayList<>();
 		for (int i = 0; i < this.choferes.size(); i++)
 			if (this.choferes.get(i).getCategoria() == categoria)
 				choferes.add(this.choferes.get(i));
@@ -72,4 +81,18 @@ public class Empresa {
 				choferes.add(this.choferes.get(i));
 		return choferes;
 	}
+
+	public ArrayList<Categoria> getCategorias() {
+		return categorias;
+	}
+
+	public ArrayList<Colectivo> getColectivos() {
+		return colectivos;
+	}
+
+	public ArrayList<Chofer> getChoferes() {
+		return choferes;
+	}
+	
+	
 }	

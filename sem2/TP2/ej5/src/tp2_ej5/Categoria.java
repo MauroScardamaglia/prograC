@@ -12,7 +12,7 @@ public class Categoria {
 	
 	@Override
 	public String toString() {
-		return "Categoría: " + nombreCategoria;
+		return "Categoría: " + nombreCategoria + "\nSueldo: $" + sueldo;
 	}
 
 	public String getNombreCategoria() {
