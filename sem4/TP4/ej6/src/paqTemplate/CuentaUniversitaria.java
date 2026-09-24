@@ -1,4 +1,4 @@
-package tp4_ej5;
+package paqTemplate;
 
 public class CuentaUniversitaria extends CuentaBancaria {
 	private double extraccDia;
