@@ -1,8 +1,8 @@
 package paqTemplate;
 
-public class CuentaUniversitaria extends CuentaBancaria {
+public class CuentaUniversitaria extends Template {
 	private double extraccDia;
-	private static double maxDiario = 1000;
+	private final static double maxDiario = 1000;
 	
 	public CuentaUniversitaria(String titular) {
 		super(titular);

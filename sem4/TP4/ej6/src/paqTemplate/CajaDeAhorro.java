@@ -1,7 +1,7 @@
 package paqTemplate;
 
-public class CajaDeAhorro extends CuentaBancaria{
-	private static int cantMaxExtracc = 10;
+public class CajaDeAhorro extends Template {
+	private final static int cantMaxExtracc = 10;
 	private int cantExtraccMens;
 	
 	public CajaDeAhorro(String titular) {

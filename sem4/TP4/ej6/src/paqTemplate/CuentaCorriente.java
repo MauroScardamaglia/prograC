@@ -1,6 +1,6 @@
 package paqTemplate;
 
-public class CuentaCorriente {
+public class CuentaCorriente extends Template {
 	// hereda de CuentaBancaria los atributos titular y saldo
 	private double tope;
 	
