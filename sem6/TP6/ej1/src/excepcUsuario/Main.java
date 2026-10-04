@@ -3,7 +3,7 @@ package excepcUsuario;
 public class Main {
 
 	public static void main(String[] args) {
-		Usuario usuario;
+		Usuario usuario;		
 		try {
 			usuario = new Usuario("Lionel Roberto Messi","eehh123");
 			System.out.println("Se pudió");
