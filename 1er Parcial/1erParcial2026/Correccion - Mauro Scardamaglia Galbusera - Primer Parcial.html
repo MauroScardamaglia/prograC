@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corrección - Mauro Scardamaglia Galbusera - Primer Parcial</title>
+<style>
+  body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.5; color: #1f2328;
+         background: #fff; max-width: 52rem; margin: 0 auto; padding: 1rem; }
+  h1, h2 { border-bottom: 1px solid #d0d7de; padding-bottom: .3em; }
+  pre { background: #f6f8fa; padding: .8rem; border-radius: 6px; overflow-x: auto; }
+  code { font-family: ui-monospace, Consolas, monospace; font-size: .9em; }
+  :not(pre) > code { background: #eff1f3; padding: .1em .3em; border-radius: 4px; }
+  blockquote { margin: 0; padding: 0 1em; color: #59636e; border-left: .25em solid #d0d7de; }
+  table { border-collapse: collapse; }
+  th, td { border: 1px solid #d0d7de; padding: .4em .8em; }
+  hr { border: 0; border-top: 2px solid #d0d7de; margin: 2rem 0; }
+  .mermaid-svg { overflow-x: auto; }
+</style>
+</head>
+<body>
+<h1>Corrección — Mauro Scardamaglia Galbusera — Punto 1</h1>
+<p>Criterios: <code>criterios/Criterios de Correccion - Ejercicio 1.md</code> (2 puntos, 0.4 por inciso).</p>
+<hr />
+<h2>1.a — Problemas de diseño</h2>
+<h3>Transcripción</h3>
+<blockquote>
+<p>Los problemas de diseño de la solución actual son redundancia innecesaria, duplicación de código y alto acoplamiento.</p>
+<p>Los preparadores tienen métodos idénticos que se podrían generalizar en una clase padre, tienen una secuencia de pasos que deben cumplir en cada clase, esto también se puede generalizar al padre.</p>
+<p>Y la creación de los preparadores es un proceso engorroso que se repite, y podría ser delegado a una clase que se encargue de eso (Patrón Factory).</p>
+</blockquote>
+<h3>Descuentos</h3>
+<ul>
+<li><strong>-0.2</strong>: no menciona el problema del procedimiento de preparación: solo señala que los métodos y la secuencia de pasos se repiten en cada clase, pero no dice que, al estar <code>preparar</code> en una interfaz, cada clase puede alterar el orden de los pasos o implementarlo como quiera.</li>
+</ul>
+<h3>Observaciones</h3>
+<p>Sin observaciones.</p>
+<h3>Nota del inciso</h3>
+<p><strong>0.2 / 0.4</strong></p>
+<hr />
+<h2>1.b — Diseño UML</h2>
+<h3>Transcripción</h3>
+<pre><code class="language-mermaid">classDiagram
+    class Preparador {
+        &lt;&lt;Abstract&gt;&gt;
+        +void preparar(Vehiculo v)
+        +boolean verificarDocumentación(Vehiculo v)
+        +void ajustarPresion(Vehiculo v)
+        +Void limpiar(Vehiculo v)
+        +void hook(Vehiculo v)
+        +void registrarEntrega(Vehiculo v)
+    }
+    class Vehiculo {
+        +void ajustarPresion(int)
+        +void agregarAccesorio()
+    }
+    class PreparadorAuto {
+        +void ajustarPresion(Vehiculo v)
+    }
+    class PreparadorMoto {
+        +void ajustarPresion(Vehiculo v)
+    }
+    class PreparadorUtilitario {
+        +void ajustarPresion(Vehiculo v)
+        +void hook(Vehiculo v)
+    }
+    Preparador ..&gt; Vehiculo
+    Preparador &lt;|-- PreparadorAuto
+    Preparador &lt;|-- PreparadorMoto
+    Preparador &lt;|-- PreparadorUtilitario
+    note for Preparador &quot;ajustarPresion: abstract&quot;
+</code></pre>
+<h3>Descuentos</h3>
+<p>Sin descuentos.</p>
+<h3>Observaciones</h3>
+<p>Sin observaciones.</p>
+<h3>Nota del inciso</h3>
+<p><strong>0.4 / 0.4</strong></p>
+<hr />
+<h2>1.c — Método template y operación de utilitarios</h2>
+<h3>Transcripción</h3>
+<pre><code class="language-java">public void final preparar (Vehiculo v) {
+    VerificarDocumentacion (v);
+    limpiar (v);
+    ajustarPresion (v);
+    hook (v);
+    registrarEvento (v);
+}
+</code></pre>
+<blockquote>
+<p>Este es el patrón Template Method con Hook.<br />
+El método que no debe poder ser redefinido es preparar() que indica la secuencia de pasos, el resto puede ser redefinido, ajustarPresion () debe ser redefinido porque depende de c/ vehículo, el &quot;método variable&quot; es el hook() que permite a utilitarios agregar un accesorio, en caso contrario no hace nada.</p>
+</blockquote>
+<h3>Descuentos</h3>
+<p>Sin descuentos.</p>
+<h3>Observaciones</h3>
+<ul>
+<li>Falta la operación variable de <code>PreparadorUtilitario</code>: no escribe la implementación de <code>hook</code> (que debería invocar <code>v.agregarAccesorio(&quot;Kit de sujeción de carga&quot;)</code>) ni la de <code>ajustarPresion</code> con 36 psi.</li>
+</ul>
+<h3>Nota del inciso</h3>
+<p><strong>0.4 / 0.4</strong></p>
+<hr />
+<h2>1.d — Mecanismo de creación</h2>
+<h3>Transcripción</h3>
+<pre><code class="language-java">public Preparador (String tipo) throws PreparadorInvException
+{
+    if (tipo.equals(&quot;AUTO&quot;)
+        return new PreparadorAuto();
+    if (tipo.equals(&quot;MOTO&quot;)
+        return new PreparadorMoto();
+    if (tipo.equals(&quot;UTILITARIO&quot;)
+        return new PreparadorUtilitario();
+    else
+        throw new PreparadorInvException(&quot;Prep Invalido&quot;);
+}
+</code></pre>
+<h3>Descuentos</h3>
+<p>Sin descuentos.</p>
+<h3>Observaciones</h3>
+<p>Sin observaciones.</p>
+<h3>Nota del inciso</h3>
+<p><strong>0.4 / 0.4</strong></p>
+<hr />
+<h2>1.e — Patrones de diseño</h2>
+<h3>Transcripción</h3>
+<blockquote>
+<p>Utilicé Template Method con Hook para la secuencia de pasos para preparar un vehículo para alquiler, el hook permite agregar accesorios. Esto resuelve el problema de duplicación de código y alto acoplamiento para la secuencia de pasos.</p>
+<p>Utilicé Patrón Factory para la creación del preparador concreto, se centraliza esta operación en una clase con esta responsabilidad y se evita códigos grandes con ifs en muchas partes y como en el caso anterior, se evita alto acoplamiento.</p>
+</blockquote>
+<h3>Descuentos</h3>
+<p>Sin descuentos.</p>
+<h3>Observaciones</h3>
+<p>Sin observaciones.</p>
+<h3>Nota del inciso</h3>
+<p><strong>0.4 / 0.4</strong></p>
+<hr />
+<h2>Nota total</h2>
+<table>
+<thead>
+<tr>
+<th>Inciso</th>
+<th>Nota</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.a</td>
+<td>0.2 / 0.4</td>
+</tr>
+<tr>
+<td>1.b</td>
+<td>0.4 / 0.4</td>
+</tr>
+<tr>
+<td>1.c</td>
+<td>0.4 / 0.4</td>
+</tr>
+<tr>
+<td>1.d</td>
+<td>0.4 / 0.4</td>
+</tr>
+<tr>
+<td>1.e</td>
+<td>0.4 / 0.4</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>1.8 / 2.0</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1>Corrección — Mauro Scardamaglia Galbusera — Punto 2</h1>
+<p><strong>Estudiante:</strong> Mauro Scardamaglia Galbusera<br />
+<strong>Ejercicio:</strong> 2 (2 puntos)</p>
+<hr />
+<h2>2.a — Diseño UML</h2>
+<h3>Transcripción</h3>
+<pre><code class="language-mermaid">classDiagram
+    class Reserve {
+        &lt;&lt;abstract&gt;&gt;
+        -double precioBase
+        +Reserve(double precioBase)
+        public double calcPrecio()
+    }
+    class ReservaAuto {
+        +ReservaAuto(double precioBase)
+        +String descripcion()
+    }
+    class ReservaMoto {
+        +ReservaMoto(double precioBase)
+        +String descripcion()
+    }
+    class ReservaUtilitario {
+        +ReservaUtilitario(double precioBase)
+        +String descripcion()
+    }
+    class Decorator {
+        &lt;&lt;abstract&gt;&gt;
+        +Decorator(double precioBase)
+        #Reserve
+    }
+    class DecGPS {
+        +DecGPS(double precioBase, Reserve r)
+        +String descripcion()
+        +double calcPrecio()
+    }
+    class DecSeguro {
+        +Decseguro(double precioBase, Reserve r)
+        +String descripcion()
+        +double calcPrecio()
+    }
+    class DecConductor {
+        +DecConductor(double precioBase, Reserve r)
+        +String descripcion()
+        +double calcPrecio()
+    }
+    Reserve &lt;|-- ReservaAuto
+    Reserve &lt;|-- ReservaMoto
+    Reserve &lt;|-- ReservaUtilitario
+    Reserve &lt;|-- Decorator
+    Decorator &lt;|-- DecGPS
+    Decorator &lt;|-- DecSeguro
+    Decorator &lt;|-- DecConductor
+</code></pre>
+<blockquote>
+<p>* , Reserve r)<br />
+↗<br />
+2° argumento de los constructores</p>
+<p>** +double calcPrecio()</p>
+</blockquote>
+<h3>Descuentos</h3>
+<ul>
+<li><strong>-0.1</strong>: Falta <code>descripcion()</code> en <code>Reserve</code>; la clase base solo declara <code>calcPrecio()</code>, mientras que <code>descripcion()</code> aparece únicamente en las subclases.</li>
+</ul>
+<h3>Observaciones</h3>
+<ul>
+<li><code>precioBase</code> está en <code>Reserve</code>, por lo que también lo heredan los decoradores, que no lo usan (de hecho, <code>Decorator</code> y los decoradores concretos lo reciben en el constructor).</li>
+</ul>
+<h3>Nota del inciso</h3>
+<p><strong>0.3 / 0.4</strong></p>
+<hr />
+<h2>2.b — Responsabilidades y patrón</h2>
+<h3>Transcripción</h3>
+<blockquote>
+<p>Patrón Decorator.<br />
+Las reservas básicas (Auto, ...) asignan el precio base a su atributo.<br />
+Las reservas decorador (GPS, ..) tienen una reserve de atributo (puede ser básica o también decorada), y tienen un agregado (una decoración) según el decorator en particular.</p>
+</blockquote>
+<h3>Descuentos</h3>
+<ul>
+<li><strong>-0.1</strong>: Falta la responsabilidad de <code>Reserve</code> como interfaz común que representa cualquier reserva, ya sea una clase base sola o con cualquier combinación de decoradores.</li>
+</ul>
+<h3>Observaciones</h3>
+<p>Sin observaciones.</p>
+<h3>Nota del inciso</h3>
+<p><strong>0.3 / 0.4</strong></p>
+<hr />
+<h2>2.c — Código para agregar GPS</h2>
+<h3>Transcripción</h3>
+<pre><code class="language-java">public class DecGPS extends Decorator {
+    public DecGPS(double precioBase, Reserve r){
+        super(precioBase);
+        this.reserva = r;
+    }
+
+    public double calcPrecio(){
+        return r.calcPrecio() + 5000;
+    public String descripcion() {
+        return r.descripcion + &quot; con GPS&quot;;
+}
+</code></pre>
+<h3>Descuentos</h3>
+<ul>
+<li><strong>-0.1</strong>: No escribe el decorador abstracto, aunque en su diseño de 2.a lo tenía (<code>Decorator</code>).</li>
+</ul>
+<h3>Observaciones</h3>
+<p>Sin observaciones.</p>
+<h3>Nota del inciso</h3>
+<p><strong>0.3 / 0.4</strong></p>
+<hr />
+<h2>2.d — Construcción, precio y descripción</h2>
+<h3>Transcripción</h3>
+<pre><code class="language-java">Reserve r = new ReservaAuto(150 000);
+r = new DecSeguro(150 000, r);
+r = new DecGPS(150 000, r);
+System.out.println(r.calcPrecio());
+System.out.println(r.descripcion());
+</code></pre>
+<blockquote>
+<p>Precio -&gt; 150000 + 12000 + 5000 = 167 000<br />
+Descripción -&gt; &quot;Reserva de Auto con Seguro Ampliado con GPS&quot;</p>
+</blockquote>
+<h3>Descuentos</h3>
+<p>Sin descuentos.</p>
+<h3>Observaciones</h3>
+<p>Sin observaciones.</p>
+<h3>Nota del inciso</h3>
+<p><strong>0.4 / 0.4</strong></p>
+<hr />
+<h2>2.e — Por qué minimiza la cantidad de clases</h2>
+<h3>Transcripción</h3>
+<blockquote>
+<p>Esta solución utiliza Patrón Decorator para combinar dinámicamente comportamientos agregados (decoraciones).<br />
+Si se necesita una decoración nueva simplemente se crea una clase que extiende de Decorator y se agrega los nuevos comportamientos.</p>
+</blockquote>
+<h3>Descuentos</h3>
+<ul>
+<li><strong>-0.2</strong>: No menciona la composición (envolver la reserva dentro de los decoradores) como mecanismo que evita crear subclases por combinación.</li>
+</ul>
+<h3>Observaciones</h3>
+<ul>
+<li>Habla solo de servicios nuevos y no explica qué ocurre al incorporar un nuevo tipo de vehículo.</li>
+</ul>
+<h3>Nota del inciso</h3>
+<p><strong>0.2 / 0.4</strong></p>
+<hr />
+<h2>Nota total</h2>
+<table>
+<thead>
+<tr>
+<th>Inciso</th>
+<th>Nota</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2.a</td>
+<td>0.3 / 0.4</td>
+</tr>
+<tr>
+<td>2.b</td>
+<td>0.3 / 0.4</td>
+</tr>
+<tr>
+<td>2.c</td>
+<td>0.3 / 0.4</td>
+</tr>
+<tr>
+<td>2.d</td>
+<td>0.4 / 0.4</td>
+</tr>
+<tr>
+<td>2.e</td>
+<td>0.2 / 0.4</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>1.5 / 2</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1>Corrección — Mauro Scardamaglia Galbusera — Punto 3</h1>
+<h2>3.a — Estados y transiciones</h2>
+<h3>Transcripción literal</h3>
+<pre><code class="language-mermaid">stateDiagram-v2
+    Solicitado --&gt; Confirmado : confirmar
+    Solicitado --&gt; Cancelada : cancelar
+    Confirmado --&gt; Cancelada : cancelar
+    Confirmado --&gt; Retirada
+    Retirada --&gt; Finalizado
+    note left of Cancelada : Estado Final
+    note left of Finalizado : Estado Final
+</code></pre>
+<h3>Descuentos</h3>
+<ul>
+<li><strong>−0,10:</strong> No distingue la cancelación desde <code>Solicitada</code> (sin cargo) de la cancelación desde <code>Confirmada</code> (con cargo), ya que ambas transiciones aparecen solo como <code>cancelar</code>.</li>
+</ul>
+<h3>Observaciones</h3>
+<ul>
+<li>Sin observaciones.</li>
+</ul>
+<h3>Nota del inciso</h3>
+<p><strong>0,40 / 0,5</strong></p>
+<h2>3.b — Diagrama UML del patrón State</h2>
+<h3>Transcripción literal</h3>
+<pre><code class="language-mermaid">classDiagram
+    class ContextoReserva
+    class InterfazEstado
+    class Solicitado
+    class Confirmada
+    class Retirada
+    class Finalizado
+    class Cancelada
+    ContextoReserva *--&gt; InterfazEstado
+    Solicitado o--&gt; ContextoReserva
+    Confirmada o--&gt; ContextoReserva
+    Retirada *--&gt; ContextoReserva
+    Finalizado *--&gt; ContextoReserva
+    Cancelada *--&gt; ContextoReserva
+    Solicitado --&gt; InterfazEstado
+    Confirmada --&gt; InterfazEstado
+    Retirada --&gt; InterfazEstado
+    Finalizado --&gt; InterfazEstado
+    Cancelada --&gt; InterfazEstado
+    note for InterfazEstado &quot;//transiciones&quot;
+</code></pre>
+<h3>Descuentos</h3>
+<ul>
+<li>Sin descuentos.</li>
+</ul>
+<h3>Observaciones</h3>
+<ul>
+<li>La agregación entre <code>ContextoReserva</code> e <code>Interfaz Estado</code> se dibuja con un rombo relleno (composición) y no con el rombo vacío del lado del contexto.</li>
+<li>La relación entre cada estado concreto y <code>Interfaz Estado</code> se dibuja con una flecha simple de asociación en lugar de una relación de implementación o herencia (triángulo).</li>
+<li>La referencia de cada estado concreto al contexto se dibuja con rombos (agregación/composición) del lado del estado concreto, cuando corresponde una asociación o flecha simple hacia el contexto.</li>
+<li>Las operaciones aparecen en el inciso a, pero no se muestran como métodos en el UML (<code>Interfaz Estado</code> solo contiene <code>//transiciones</code>).</li>
+</ul>
+<h3>Nota del inciso</h3>
+<p><strong>0,5 / 0,5</strong></p>
+<h2>3.c — Método <code>retirar</code> de <code>Confirmada</code></h2>
+<h3>Transcripción literal</h3>
+<pre><code class="language-java">public class Confirmada {
+    private Contexto Reserva c;
+    ...
+    public void retirar(){
+        c.setEstado(new Retirada());
+    }
+</code></pre>
+<h3>Descuentos</h3>
+<ul>
+<li><strong>−0,20:</strong> Al crear el nuevo estado <code>Retirada</code> no se le pasa la reserva/contexto <code>c</code>.</li>
+</ul>
+<h3>Observaciones</h3>
+<ul>
+<li>Hay errores de sintaxis: el tipo del atributo está escrito con un espacio (<code>Contexto Reserva</code>) y no se cierra la llave de la clase.</li>
+</ul>
+<h3>Nota del inciso</h3>
+<p><strong>0,30 / 0,5</strong></p>
+<h2>3.d — Operación inválida en un estado</h2>
+<h3>Transcripción literal</h3>
+<blockquote>
+<p>Depende del contexto se puede lanzar excepciones, no hacer nada lanzar AssertionError, en general yo usaría excepciones.<br />
+Por ejemplo, retirar en el estado Cancelada haría un throw Transicion InvExeption con mensaje &quot;transición invalida&quot;.</p>
+</blockquote>
+<h3>Descuentos</h3>
+<ul>
+<li>Sin descuentos.</li>
+</ul>
+<h3>Observaciones</h3>
+<ul>
+<li>Sin observaciones.</li>
+</ul>
+<h3>Nota del inciso</h3>
+<p><strong>0,5 / 0,5</strong></p>
+<hr />
+<h2>Nota total del punto</h2>
+<table>
+<thead>
+<tr>
+<th>Inciso</th>
+<th>Nota</th>
+<th>Máximo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3.a</td>
+<td>0,40</td>
+<td>0,5</td>
+</tr>
+<tr>
+<td>3.b</td>
+<td>0,5</td>
+<td>0,5</td>
+</tr>
+<tr>
+<td>3.c</td>
+<td>0,30</td>
+<td>0,5</td>
+</tr>
+<tr>
+<td>3.d</td>
+<td>0,5</td>
+<td>0,5</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>1,70</strong></td>
+<td><strong>2</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1>Correccion - Mauro Scardamaglia Galbusera - Punto 4</h1>
+<p><strong>Escala de la nota final:</strong> 0 a 2 puntos.</p>
+<h2>Inciso 4.a</h2>
+<h3>Inciso 4.a.1</h3>
+<p><strong>1. Transcripción literal del estudiante</strong></p>
+<pre><code class="language-text">Texto no numerico: el metodo invocante recibe CantDiasInvalidoException con mensaje &quot;La cantidad de dias no esta bien expresada&quot;.
+</code></pre>
+<p><strong>2. Correcciones del inciso</strong></p>
+<p>Tipo final y mensaje correctos.</p>
+<p><strong>3. Nota del inciso:</strong> 0,2 / 0,2 puntos</p>
+<h3>Inciso 4.a.2</h3>
+<p><strong>1. Transcripción literal del estudiante</strong></p>
+<pre><code class="language-text">Cantidad de dias igual a cero: el metodo invocante recibe CantDiasInvalidoException con mensaje &quot;La cantidad de dias debe ser positiva&quot;.
+</code></pre>
+<p><strong>2. Correcciones del inciso</strong></p>
+<p>Tipo final y mensaje correctos.</p>
+<p><strong>3. Nota del inciso:</strong> 0,2 / 0,2 puntos</p>
+<h3>Inciso 4.a.3</h3>
+<p><strong>1. Transcripción literal del estudiante</strong></p>
+<pre><code class="language-text">Vehiculo no disponible: el metodo invocante no recibe ninguna excepcion, recibe Reserva con null.
+</code></pre>
+<p><strong>2. Correcciones del inciso</strong></p>
+<p>Indica null sin desarrollar captura.</p>
+<p><strong>3. Nota del inciso:</strong> 0,1 / 0,2 puntos</p>
+<h3>Inciso 4.a.4</h3>
+<p><strong>1. Transcripción literal del estudiante</strong></p>
+<pre><code class="language-text">Reserva exitosa: el metodo invocante no recibe ninguna excepcion, recibe Reserva con una instancia valida (no nula).
+</code></pre>
+<p><strong>2. Correcciones del inciso</strong></p>
+<p>Reserva válida retornada.</p>
+<p><strong>3. Nota del inciso:</strong> 0,2 / 0,2 puntos</p>
+<p><strong>Nota total del inciso 4.a:</strong> 0,7 / 0,8 puntos</p>
+<h2>Inciso 4.b</h2>
+<p><strong>1. Transcripción literal del estudiante</strong></p>
+<pre><code class="language-text">Añadirle al metodo reservar throws VehiculoNoDisponibleException, en el cuerpo catch correspondiente de este metodo hacer throw de dicha excepcion con un mensaje correspondiente. Luego esta excepcion la deberia atrapar en bloque catch el metodo invocante, y asi la distingue de una reserva exitosa ya que interrumpe el ciclo natural del ciclo try.
+</code></pre>
+<p><strong>2. Correcciones del inciso</strong></p>
+<p>Throws, relanzar disponibilidad y manejo por invocante correctos.</p>
+<p><strong>3. Nota del inciso:</strong> 0,6 / 0,6 puntos</p>
+<h2>Inciso 4.c</h2>
+<p><strong>1. Transcripción literal del estudiante</strong></p>
+<pre><code class="language-text">Se esta aplicando una transformacion de la excepcion de NumberFormatException a CantDiasInvalidoException, el metodo invocante recibe la informacion de la segunda excepcion.
+</code></pre>
+<p><strong>2. Correcciones del inciso</strong></p>
+<p>Transformación y ambos tipos correctos; falta mensaje/cause.</p>
+<p><strong>3. Nota del inciso:</strong> 0,25 / 0,3 puntos</p>
+<h2>Inciso 4.d</h2>
+<p><strong>1. Transcripción literal del estudiante</strong></p>
+<pre><code class="language-text">Finally garantiza que no importe la excepcion que ocurra en el bloque try, lo que este en el bloque finally ocurra... Ya que finally no tiene return, la siguiente linea se tendria que ejecutar siempre. Pero ahora dudo si en el caso de entrar al primer catch y lanzar la excepcion, se entra al bloque finally o no. No recuerdo si con return o throw antes del finally se ejecutaba o no.
+</code></pre>
+<p><strong>2. Correcciones del inciso</strong></p>
+<p>Explica garantía general, pero expresa duda sobre primer caso y salida por throw; no cierra cuatro casos.</p>
+<p><strong>3. Nota del inciso:</strong> 0,15 / 0,3 puntos</p>
+<h2>Nota final del Punto 4</h2>
+<p>1,7 / 2 puntos</p>
+<hr />
+<h1>Correccion - Mauro Scardamaglia Galbusera - Punto 5</h1>
+<p><strong>Escala de la nota final:</strong> 0 a 2 puntos.</p>
+<h2>Inciso 5.a</h2>
+<p><strong>1. Transcripción literal del estudiante</strong></p>
+<pre><code class="language-text">procesar es una operación polimórfica ya que recibe y utiliza una instancia de un objeto de tipo Vehiculo, es decir cualquier instancia cuya clase herede de Vehiculo (no puedo recibir instancia de Vehiculo ya que es clase abstracta). Dado esto no hay [lectura dudosa: ‘limitación’], hasta que no se ejecuta el código no se sabe qué instancia se recibe y por lo tanto a qué implementación se llama (late Binding - enlace tardío).
+</code></pre>
+<p><strong>2. Correcciones del inciso</strong></p>
+<p>Correcta referencia e implementación seleccionada en ejecución.</p>
+<p><strong>3. Nota del inciso:</strong> 0,4 / 0,4 puntos</p>
+<h2>Inciso 5.b</h2>
+<p><strong>1. Transcripción literal del estudiante</strong></p>
+<pre><code class="language-text">En AutoElectrico se fortalece la pre-condición dias &gt; 0 ya que se pide que sean &gt; 2, sino lanza excepción. En VehiculoPromocional se violan/rompen todas las pre/post condiciones (quizás excepto por reserva confirmada) ya que no se invoca el método reservar original que es donde está el contrato.
+</code></pre>
+<p><strong>2. Correcciones del inciso</strong></p>
+<p>Eléctrico correcto. No llamar super no elimina por sí solo contrato ni todas condiciones; no identifica disponibilidad expresamente: crédito parcial.</p>
+<p><strong>3. Nota del inciso:</strong> 0,375 / 0,5 puntos</p>
+<h2>Inciso 5.c</h2>
+<p><strong>1. Transcripción literal del estudiante</strong></p>
+<pre><code class="language-text">Ninguna subclase respeta el principio de sustitución de Liskov ya que ambos violan el contrato por lo que no podrían ser usadas en vez de la clase padre.
+</code></pre>
+<p><strong>2. Correcciones del inciso</strong></p>
+<p>Conclusión correcta; fundamento promocional inespecífico. Error de análisis considerado en b, crédito amplio aquí por regla contractual.</p>
+<p><strong>3. Nota del inciso:</strong> 0,45 / 0,6 puntos</p>
+<h2>Inciso 5.d</h2>
+<p><strong>1. Transcripción literal del estudiante</strong></p>
+<pre><code class="language-text">[p.106:] // AutoElectrico. public Reserva reservar(Cliente cliente,int dias){ return super.reservar(cliente,dias); } // VehiculoPromocional. public Reserva reservar(Cliente cliente,int dias){ return super.reservar(cliente,dias); } Ninguno puede fortalecer las precondiciones ni romper otra parte del contrato por lo que simplemente llaman a su padre.
+</code></pre>
+<p><strong>2. Correcciones del inciso</strong></p>
+<p>Ambas correcciones válidas por super. La respuesta continúa al dorso y se incluye íntegramente.</p>
+<p><strong>3. Nota del inciso:</strong> 0,5 / 0,5 puntos</p>
+<h2>Nota final del Punto 5</h2>
+<p>1,725 / 2 puntos</p>
+<hr />
+<h1>Nota final</h1>
+<table>
+<thead>
+<tr>
+<th>Ejercicio</th>
+<th>Nota</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1,8</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1,5</td>
+</tr>
+<tr>
+<td>3</td>
+<td>1,7</td>
+</tr>
+<tr>
+<td>4</td>
+<td>1,7</td>
+</tr>
+<tr>
+<td>5</td>
+<td>1,725</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>8,425</strong></td>
+</tr>
+</tbody>
+</table>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ startOnLoad: false });
+    document.querySelectorAll("pre > code.language-mermaid").forEach(async (code, i) => {
+      try {
+        const { svg } = await mermaid.render("diagrama-" + i, code.textContent);
+        const div = document.createElement("div");
+        div.className = "mermaid-svg";
+        div.innerHTML = svg;
+        code.parentElement.replaceWith(div);
+      } catch (e) {}
+    });
+  }
+</script>
+</body>
+</html>
