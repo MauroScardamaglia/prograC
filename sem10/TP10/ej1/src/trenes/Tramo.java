@@ -2,19 +2,19 @@ package trenes;
 
 public class Tramo { 
 	// RECURSO COMPARTIDO
-	private boolean sePuedePasar;
-	private boolean tienePreferenciaIzqDer;
+	private boolean sentidoCirculacionIzqDer;
 	int cantEsperandoIzqDer;
 	int cantEsperandoDerIzq;
+	int cantCirculando;
 	private String nombre;
 	// monitor implícito único para toda la instancia
 
 	public Tramo(String nombre) {
 		this.nombre = nombre;
 		
-		this.sePuedePasar = true;
 		this.cantEsperandoIzqDer = this.cantEsperandoDerIzq = 0;
-		this.tienePreferenciaIzqDer = true; // arbitrariamente
+		this.sentidoCirculacionIzqDer = true; // arbitrariamente
+		this.cantCirculando = 0;
 	}
 
 	public void sumarTrenEsperando(Tren tren) {
@@ -31,33 +31,40 @@ public class Tramo {
 			cantEsperandoDerIzq --;		
 	}
 	
-	private boolean hayMismaPreferencia(Tren tren) {
-		return tienePreferenciaIzqDer == tren.isDireccionIzqDer();
+	private boolean hayMismoSentido(Tren tren) {
+		return sentidoCirculacionIzqDer == tren.isDireccionIzqDer();
 	}
 	
 	private boolean hayTrenesEsperando(Tren tren) {
-		if (tienePreferenciaIzqDer)
+		if (sentidoCirculacionIzqDer)
 			return cantEsperandoIzqDer > 0;
 		else
 			return cantEsperandoDerIzq > 0;
 	}
 	
 	private boolean trenPuedePasar(Tren tren) {
-		return sePuedePasar && (hayMismaPreferencia(tren) || !(hayTrenesEsperando(tren)) );
+		if (cantCirculando == 0) {
+			sentidoCirculacionIzqDer = tren.isDireccionIzqDer();
+		}
+		return hayMismoSentido(tren);
 	}
 
-	public synchronized void pasaTren(Tren tren) throws InterruptedException {
+	public synchronized void entraTren(Tren tren) throws InterruptedException {
 		sumarTrenEsperando(tren);
 		while (!trenPuedePasar(tren)) {
 			wait();
 		}
 		quitarTrenEsperando(tren);
+		cantCirculando++;
 		System.out.println("Hay " + cantEsperandoIzqDer + " trenes esperando para ir hacia la derecha" + " & " + cantEsperandoDerIzq + " trenes esperando para ir a la izquierda");
 				
 		System.out.println("--- --- --- --- --- --- --- --- --- --- --- --- --- \n" + tren + " entra por " + this + "\n--- --- --- --- --- --- --- --- --- --- --- --- --- \n");
 
-		sePuedePasar = true; // bueno, ya está, ya la usé
-		this.tienePreferenciaIzqDer = !tren.isDireccionIzqDer();
+	}
+	
+	public synchronized void saleTren(Tren tren) throws InterruptedException {
+		System.out.println("--- --- --- --- --- --- --- --- --- --- --- --- --- \n" + tren + " sale por " + this + "\n--- --- --- --- --- --- --- --- --- --- --- --- --- \n");
+		cantCirculando --;
 		notifyAll();
 	}
 	

@@ -20,7 +20,9 @@ public class Tren implements Runnable {
 	
 	public void pasarPorTramo(Tramo tramo) {
 		try {
-			tramo.pasaTren(this);
+			tramo.entraTren(this);
+			Thread.sleep(1000); // 1seg
+			tramo.saleTren(this);
 		}
 		catch (InterruptedException e) {
 			System.out.println("Falló algo mano ");
