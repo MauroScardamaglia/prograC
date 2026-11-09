@@ -37,16 +37,25 @@ public class Tramo {
 	
 	private boolean hayTrenesEsperando(Tren tren) {
 		if (sentidoCirculacionIzqDer)
-			return cantEsperandoIzqDer > 0;
-		else
 			return cantEsperandoDerIzq > 0;
+		else
+			return cantEsperandoIzqDer > 0;
 	}
 	
 	private boolean trenPuedePasar(Tren tren) {
-		if (cantCirculando == 0) {
-			sentidoCirculacionIzqDer = tren.isDireccionIzqDer();
-		}
-		return hayMismoSentido(tren);
+		if (hayMismoSentido(tren) )
+			if ( !hayTrenesEsperando(tren) )
+				return true;
+			else
+				return false;
+		else
+			if (cantCirculando == 0) {
+				sentidoCirculacionIzqDer = !sentidoCirculacionIzqDer;
+				return true;
+			}
+			else
+				return false;
+				
 	}
 
 	public synchronized void entraTren(Tren tren) throws InterruptedException {
