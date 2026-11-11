@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corrección - Mauro Scardamaglia Galbusera - Recuperatorio Primer Parcial</title>
+<style>
+  body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.5; color: #1f2328;
+         background: #fff; max-width: 52rem; margin: 0 auto; padding: 1rem; }
+  h1, h2 { border-bottom: 1px solid #d0d7de; padding-bottom: .3em; }
+  pre { background: #f6f8fa; padding: .8rem; border-radius: 6px; overflow-x: auto; }
+  code { font-family: ui-monospace, Consolas, monospace; font-size: .9em; }
+  :not(pre) > code { background: #eff1f3; padding: .1em .3em; border-radius: 4px; }
+  blockquote { margin: 0; padding: 0 1em; color: #59636e; border-left: .25em solid #d0d7de; }
+  table { border-collapse: collapse; }
+  th, td { border: 1px solid #d0d7de; padding: .4em .8em; }
+  hr { border: 0; border-top: 2px solid #d0d7de; margin: 2rem 0; }
+  .mermaid-svg { overflow-x: auto; }
+</style>
+</head>
+<body>
+<h1>Corrección — Mauro Scardamaglia Galbusera — Punto 1 (Ejercicio B1)</h1>
+<h2>B1 — Diagrama de clases del despacho (1 pt)</h2>
+<h3>Transcripción literal</h3>
+<blockquote>
+<p>*Aclaración: las clases / recuadros sin &lt;<interfaz>&gt; ó &lt;<abstract>&gt; son clases concretas.</p>
+</blockquote>
+<pre><code class="language-mermaid">classDiagram
+    class Despachador {
+        &lt;&lt;abstract&gt;&gt;
+        +final void despachar(Paquete paquete, String destinatario);
+        +final boolean validarDestinatario(String destinatario);
+        +final int pesarPaquete(Paquete paquete);
+        +abstract void acondicionarPaquete(Paquete paquete);
+        +void etiquetarPaquete(Paquete paquete);
+        +final registrarDespacho(Paquete paquete, string Destinatario, int peso)
+        +Despachador();
+    }
+    class DespachadorEstandar {
+        +void acondicionarPaquete(Paquete Paquete);
+        +DespachadorEstandar();
+    }
+    class DespachadorFragil {
+        +void acondicionarPaquete(Paquete paquete);
+        +void etiquetarPaquete(Paquete paquete);
+    }
+    class DespachadorRefrigerado {
+        +void acondicionarPaquete(Paquete paquete)
+    }
+    class Paquete {
+        +void agregarEmbalaje(string Material);
+        +void agregarEtiqueta(string texto);
+        +void fijarTemperatura(int grados);
+    }
+    Despachador &lt;|-- DespachadorEstandar
+    Despachador &lt;|-- DespachadorFragil
+    Despachador &lt;|-- DespachadorRefrigerado
+    Despachador ..&gt; Paquete : desp delega a Paquete
+    note for DespachadorFragil &quot;(*) respectivos constructores publicos, sin parametros&quot;
+    note for DespachadorRefrigerado &quot;(*) respectivos constructores publicos, sin parametros&quot;
+    note for Paquete &quot;(*) respectivos constructores publicos, sin parametros&quot;
+</code></pre>
+<h3>Descuentos</h3>
+<ul>
+<li><strong>-0.1</strong>: Firmas incompletas: <code>registrarDespacho</code> no tiene tipo de retorno escrito.</li>
+</ul>
+<h3>Observaciones</h3>
+<p>Sin observaciones.</p>
+<h3>Nota del inciso</h3>
+<p><strong>0.9 / 1</strong></p>
+<hr />
+<h2>Nota total del ejercicio</h2>
+<p><strong>0.9 / 1</strong></p>
+<hr />
+<h1>Corrección — Mauro Scardamaglia Galbusera — Punto 2 (Ejercicio B2)</h1>
+<hr />
+<h2>B2 — Costo de los envíos (1 pt)</h2>
+<h3>Transcripción literal</h3>
+<blockquote>
+<p>∀ las flechas son extends</p>
+</blockquote>
+<pre><code class="language-mermaid">classDiagram
+    class Envio {
+        &lt;&lt;abstract&gt;&gt;
+        +double calcularCosto()
+        +String getDescripcion()
+    }
+    class EnvioLocal {
+        +double calcularCosto()
+        +string getDescripcion()
+    }
+    class EnvioNacional {
+        +double calcularCosto()
+        +string getDescripcion()
+    }
+    class EnvioInternacional {
+        +double calcularCosto()
+        +string getDescripcion()
+    }
+    class EnvioConSeguro {
+        -Envio envuelto
+        +double calcularCosto()
+        +string getDescripcion()
+    }
+    class EnvioConSeguimiento {
+        -Envio envuelto
+        +double calcularCosto()
+        +string getDescripcion()
+    }
+    class EnvioEnFranjaHoraria {
+        -Envio envuelto
+        +double calcularCosto()
+        +string getDescripcion()
+    }
+    Envio &lt;|-- EnvioLocal
+    Envio &lt;|-- EnvioNacional
+    Envio &lt;|-- EnvioInternacional
+    Envio &lt;|-- EnvioConSeguro
+    Envio &lt;|-- EnvioConSeguimiento
+    Envio &lt;|-- EnvioEnFranjaHoraria
+    note for Envio &quot;*1&quot;
+    note for EnvioConSeguro &quot;*2&quot;
+</code></pre>
+<blockquote>
+<p>*1 → respectivos constructores, públicos, sin argumentos</p>
+<p>*2 → respectivos constructores, públicos, con argumento (Envio envuelto)</p>
+</blockquote>
+<h3>Descuentos</h3>
+<p>Sin descuentos.</p>
+<h3>Observaciones</h3>
+<ul>
+<li><code>Envio</code> es una clase abstracta en lugar de una interfaz: al no haber estado compartido entre los tipos de envío y los decoradores, lo adecuado es una interfaz.</li>
+<li>No existe una clase abstracta común para los servicios y el atributo <code>envuelto</code> está repetido en cada uno: una clase abstracta decoradora (por ejemplo, <code>ServicioEnvio</code>) evita repetir el atributo y el constructor.</li>
+</ul>
+<h3>Nota del inciso</h3>
+<p><strong>1 / 1</strong></p>
+<hr />
+<h2>Nota total del ejercicio</h2>
+<table>
+<thead>
+<tr>
+<th>Inciso</th>
+<th>Nota</th>
+<th>Máximo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>B2</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>1</strong></td>
+<td><strong>1</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1>Corrección — Mauro Scardamaglia Galbusera — Punto 3 (Ejercicio B3: Estados de un envío)</h1>
+<hr />
+<h2>B3.a — Estados y transiciones (máx. 0.4)</h2>
+<h3>Transcripción</h3>
+<pre><code class="language-mermaid">stateDiagram-v2
+    Registrado: Registrado (Inicial)
+    Cancelado: Cancelado (Final)
+    Despachado: Despachado
+    EnReparto: En Reparto
+    Entregado: Entregado (Final)
+    Devuelto: Devuelto (Final)
+
+    [*] --&gt; Registrado
+    Registrado --&gt; Cancelado: cancelar
+    Registrado --&gt; Despachado: despachar
+    Despachado --&gt; EnReparto: repartir
+    Despachado --&gt; Devuelto: cancelar
+    EnReparto --&gt; Entregado: entregar
+    EnReparto --&gt; Devuelto: devolver
+    Cancelado --&gt; [*]
+    Entregado --&gt; [*]
+    Devuelto --&gt; [*]
+</code></pre>
+<p>(Los estados están dibujados como óvalos; &quot;Inicial&quot; está escrito sobre Registrado y &quot;Final&quot; junto a Cancelado, Entregado y Devuelto.)</p>
+<h3>Descuentos</h3>
+<p>Sin descuentos.</p>
+<h3>Observaciones</h3>
+<p>Sin observaciones.</p>
+<h3>Nota del inciso</h3>
+<p><strong>0.4 / 0.4</strong></p>
+<hr />
+<h2>B3.b — Diagrama de clases con el patrón State (máx. 0.6)</h2>
+<h3>Transcripción</h3>
+<pre><code class="language-mermaid">classDiagram
+    class EstadoEnvio {
+        &lt;&lt;interface&gt;&gt;
+        +void cancelar();
+        +void despachar();
+        +void repartir();
+        +void entregar();
+        +void devolver();
+    }
+    class Envio {
+        - EstadoEnvio estado;
+        ...
+        ⊛A
+        ...
+    }
+    class EnvioCancelado {
+        -Envio envio
+        + EnvioCancelado(Envio envio);
+        ⊛A
+    }
+    class EnvioRegistrado {
+        -Envio envio
+        ⊛A
+    }
+    class EnvioDespachado {
+        -Envio envio
+        ⊛A
+    }
+    class EnvioEnReparto {
+        -Envio envio
+        ⊛A
+    }
+    class EnvioEntregado {
+        -Envio envio
+        ⊛A
+    }
+    class EnvioDevuelto {
+        -Envio envio
+        ⊛A
+    }
+    EstadoEnvio &lt;|.. EnvioCancelado
+    EstadoEnvio &lt;|.. EnvioRegistrado
+    EstadoEnvio &lt;|.. EnvioDespachado
+    EstadoEnvio &lt;|.. EnvioEnReparto
+    EstadoEnvio &lt;|.. EnvioEntregado
+    EstadoEnvio &lt;|.. EnvioDevuelto
+</code></pre>
+<p>(En la interfaz, los cinco métodos están encerrados por un corchete rotulado &quot;⊛A&quot;; esa marca se usa como referencia a ese bloque en Envio y en cada estado concreto.)</p>
+<blockquote>
+<p>ACLARACIONES: los 6 estados implementan la interfaz EstadoEnvio, y tienen una relación de agregación con Envio.</p>
+</blockquote>
+<h3>Descuentos</h3>
+<ul>
+<li><strong>-0.05</strong> — Los métodos de la interfaz <code>EstadoEnvio</code> no declaran <code>throws TransicionInvalidaException</code>, por lo que el diseño no indica cómo se rechazan las transiciones inválidas.</li>
+<li><strong>-0.1</strong> — La clase contexto <code>Envio</code> no tiene el método para cambiar de estado (<code>setEstado(estado: EstadoEnvio)</code> o equivalente), que los estados necesitan para producir las transiciones.</li>
+</ul>
+<h3>Observaciones</h3>
+<p>Sin observaciones.</p>
+<h3>Nota del inciso</h3>
+<p><strong>0.45 / 0.6</strong></p>
+<hr />
+<h2>Nota total del ejercicio</h2>
+<table>
+<thead>
+<tr>
+<th>Inciso</th>
+<th>Nota</th>
+<th>Máximo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>B3.a</td>
+<td>0.4</td>
+<td>0.4</td>
+</tr>
+<tr>
+<td>B3.b</td>
+<td>0.45</td>
+<td>0.6</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>0.85</strong></td>
+<td><strong>1</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1>Corrección — Mauro Scardamaglia Galbusera — Punto 4 (Multiple Choice)</h1>
+<p>Nota de la sección Multiple Choice: <strong>6.5</strong></p>
+<hr />
+<h1>Nota final</h1>
+<table>
+<thead>
+<tr>
+<th>Ejercicio</th>
+<th>Nota</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>0,9</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr>
+<td>3</td>
+<td>0,85</td>
+</tr>
+<tr>
+<td>4</td>
+<td>6,5</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>9,25</strong></td>
+</tr>
+</tbody>
+</table>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ startOnLoad: false });
+    document.querySelectorAll("pre > code.language-mermaid").forEach(async (code, i) => {
+      try {
+        const { svg } = await mermaid.render("diagrama-" + i, code.textContent);
+        const div = document.createElement("div");
+        div.className = "mermaid-svg";
+        div.innerHTML = svg;
+        code.parentElement.replaceWith(div);
+      } catch (e) {}
+    });
+  }
+</script>
+</body>
+</html>
