@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corrección - Mauro Scardamaglia Galbusera - Recuperatorio Primer Parcial</title>
+<style>
+  body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.5; color: #1f2328;
+         background: #fff; max-width: 52rem; margin: 0 auto; padding: 1rem; }
+  h1, h2 { border-bottom: 1px solid #d0d7de; padding-bottom: .3em; }
+  pre { background: #f6f8fa; padding: .8rem; border-radius: 6px; overflow-x: auto; }
+  code { font-family: ui-monospace, Consolas, monospace; font-size: .9em; }
+  :not(pre) > code { background: #eff1f3; padding: .1em .3em; border-radius: 4px; }
+  blockquote { margin: 0; padding: 0 1em; color: #59636e; border-left: .25em solid #d0d7de; }
+  table { border-collapse: collapse; }
+  th, td { border: 1px solid #d0d7de; padding: .4em .8em; }
+  hr { border: 0; border-top: 2px solid #d0d7de; margin: 2rem 0; }
+  .mermaid-svg { overflow-x: auto; }
+</style>
+</head>
+<body>
+<h1>Corrección — Mauro Scardamaglia Galbusera — Punto 1</h1>
+<hr />
+<h2>1.a — Diagrama de clases UML (1 pt)</h2>
+<h3>Transcripción</h3>
+<pre><code class="language-mermaid">classDiagram
+    class Usuario
+    class Vista {
+        &lt;&lt;observer&gt;&gt;
+        +void setControlador(ActionListener c);
+        +void update(Observable o, Object arg);
+    }
+    class Controlador {
+        &lt;&lt;actionListener&gt;&gt;
+        +void actionPerformed(ActionEvent e);
+    }
+    class Modelo {
+        &lt;&lt;Observable&gt;&gt;
+        - ArrayList~Paciente~.
+        ... constructor, getters &amp; setters
+        + void registrarPaciente(Paciente p);
+    }
+    Usuario --&gt; Vista : interactúa
+    Vista ..&gt; Controlador : lanzo evento
+    Vista --&gt; Modelo : observa
+    Controlador --&gt; Modelo : manipula
+</code></pre>
+<h3>Descuentos</h3>
+<ul>
+<li><strong>-0.2</strong> — No existe una interfaz <code>IVista</code> (ni clase abstracta equivalente): la única vista es la clase concreta <code>Vista</code>, con la que trabaja el controlador, así que el controlador queda atado a una vista concreta.</li>
+<li><strong>-0.05</strong> — Falta la firma del método principal para obtener los pacientes del modelo (<code>+ getPacientes(): List&lt;Paciente&gt;</code>); solo se indica &quot;getters&quot; de forma genérica.</li>
+<li><strong>-0.05</strong> — Falta el atributo <code>vista</code> (de tipo <code>IVista</code>) en <code>Controlador</code>.</li>
+<li><strong>-0.05</strong> — Falta el atributo <code>modelo</code> en <code>Controlador</code>.</li>
+<li><strong>-0.05</strong> — Falta en la vista el método para mostrar mensajes al usuario (<code>+ mostrarMensaje(msg: String): void</code>).</li>
+</ul>
+<h3>Observaciones</h3>
+<ul>
+<li>Usás <code>java.util.Observable</code> / <code>Observer</code> (<code>update(Observable o, Object arg)</code>); lo pedido son interfaces propias (<code>IObservable</code> / <code>IObservador</code>).</li>
+<li>El atributo de <code>Modelo</code> está escrito como <code>- ArrayList&lt;Paciente&gt;.</code>, sin nombre (error de sintaxis).</li>
+</ul>
+<h3>Nota del inciso: <strong>0.6 / 1</strong></h3>
+<hr />
+<h2>1.b — Secuencia al presionar &quot;Registrar Paciente&quot; (0.7 pts)</h2>
+<h3>Transcripción</h3>
+<blockquote>
+<p>Cuando el usuario aprieta el botón &quot;Registrar Paciente&quot; la vista le lanza a su controlador un ActionEvent, el controlador al recibirlo en ActionPerformed(), modifica el modelo invocando registrarPaciente, [¿dada?] su referencia al modelo, el modelo luego de registrar el paciente, invoca setChanged(), para avisar que hay cambios e invoca notifyObservers( ) pasandole como parámetro el cambio hecho; esto desencadena en el método update() de la vista, que hace que esta muestre los cambios, es decir la versión actualizada del modelo.</p>
+</blockquote>
+<h3>Descuentos</h3>
+<ul>
+<li><strong>-0.15</strong> — Falta el paso en que el controlador obtiene de la vista los datos ingresados (por ejemplo, <code>vista.getDatosPaciente()</code>) y arma el <code>Paciente</code> antes de llamar a <code>registrarPaciente</code>.</li>
+</ul>
+<h3>Observaciones</h3>
+<p>Sin observaciones.</p>
+<h3>Nota del inciso: <strong>0.55 / 0.7</strong></h3>
+<hr />
+<h2>1.c — Misma instancia del controlador con dos vistas (0.5 pts)</h2>
+<h3>Transcripción</h3>
+<blockquote>
+<p>El modelo y el controlador contemplan observables (GUI, terminal(consola)) genéricos y la información que se pasan entre sí es independiente del tipo de vista.</p>
+</blockquote>
+<h3>Descuentos</h3>
+<ul>
+<li><strong>-0.25</strong> — No menciona una interfaz común (<code>IVista</code>) ni clase abstracta ni polimorfismo; solo dice que las vistas son &quot;genéricas&quot;, sin explicar el mecanismo por el cual el controlador trabaja con cualquiera de ellas.</li>
+<li><strong>-0.15</strong> — No menciona el Observer-Observable implícito entre la ventana y el controlador mediante <code>ActionListener</code> (el controlador registrado como oyente de la vista).</li>
+</ul>
+<h3>Observaciones</h3>
+<p>Sin observaciones.</p>
+<h3>Nota del inciso: <strong>0.1 / 0.5</strong></h3>
+<hr />
+<h2>1.d — Observable y observadores (0.8 pts)</h2>
+<h3>Transcripción</h3>
+<blockquote>
+<ul>
+<li>El modelo es observable</li>
+<li>La vista es observer</li>
+<li>Para que el mecanismo de notificación funcione correctamente, la vista (observer) debe redefinir update(), para indicar que hacer al observar cambios en el modelo.</li>
+<li>El modelo no necesita redefinir ningún método de observable.</li>
+</ul>
+</blockquote>
+<h3>Descuentos</h3>
+<ul>
+<li><strong>-0.3</strong> (tope) — Faltan los métodos obligatorios del observable: cómo se registran los observadores (<code>addObserver</code>), la notificación (<code>notifyObservers</code>) y <code>setChanged()</code>; decir que el modelo &quot;no necesita redefinir ningún método&quot; no indica qué métodos usa para que la notificación funcione (-0.1 c/u).</li>
+<li><strong>-0.15</strong> — Identifica únicamente el Observer-Observable entre el modelo y la vista, y no menciona el Observer-Observable implícito entre la ventana y el controlador mediante <code>ActionListener</code> / <code>actionPerformed</code>.</li>
+</ul>
+<h3>Observaciones</h3>
+<ul>
+<li>Usás <code>java.util.Observable</code> / <code>Observer</code>; lo pedido son interfaces propias (<code>IObservable</code> con <code>agregarObservador</code>/<code>notificarObservadores</code> e <code>IObservador</code> con <code>actualizar</code>).</li>
+</ul>
+<h3>Nota del inciso: <strong>0.35 / 0.8</strong></h3>
+<hr />
+<h2>Nota total del ejercicio: <strong>1.6 / 3</strong></h2>
+<hr />
+<h1>Corrección — Mauro Scardamaglia Galbusera — Punto 2</h1>
+<p><strong>Ejercicio 2 · Concurrencia y sincronización (3 puntos)</strong></p>
+<hr />
+<h2>2.a — Recurso compartido (1.2 pts)</h2>
+<h3>Transcripción</h3>
+<pre><code class="language-java">public class BoxDeGuardia { // recurso compartido
+  private final CAPACIDAD_MASCOTAS = 5;
+  private ArrayList&lt;Mascota&gt; mascotas;
+  public BoxDeGuardia() {this.mascotas = new ArrayList&lt;&gt;();}
+
+  public void synchronized ingresarMascota(Mascota m){ (*)
+    while (mascotas.size() == CAPACIDAD_MASCOTAS)
+      wait();
+    mascotas.add(m);
+    notifyAll(); //en caso de que no hubiera mascotas para
+                 // retirar.
+  }
+
+  public Mascota synchronized retirarMascotas() { (*)
+    while (mascotas.size == 0)
+      wait();
+    Mascota m = mascotas.get(0); //la primera en la fila
+    mascotas.remove(m);
+    notifyAll(); // por si estaba llena la fila.
+    return m;
+  }
+</code></pre>
+<blockquote>
+<p>(*) Me di cuenta que omití el manejo de la excepción InterruptedException provocada por wait(), lo que yo haría es propagarla declarando throws InterruptedException</p>
+</blockquote>
+<h3>Descuentos</h3>
+<p>Sin descuentos.</p>
+<h3>Observaciones</h3>
+<p>Sin observaciones.</p>
+<h3>Nota del inciso</h3>
+<p><strong>1.2 / 1.2</strong></p>
+<hr />
+<h2>2.b — Creación e inicio de hilos (0.6 pts)</h2>
+<h3>Transcripción</h3>
+<pre><code class="language-java">// asumiendo que Recepcionista y Veterinario implementan
+// Runnable
+// y que el veterinario tiene un ciclo for de 10 iteraciones
+// donde retira y atiende mascotas
+// dentro de su método run();
+
+public class Prueba ... {
+  public void main(string args...) {
+    BoxDeGuardia box = new BoxDeGuardia();
+    Recepcionista recepcionista = new Recepcionista(box); //productor
+    Veterinario veterinario = new Veterinario(box); //consumidor
+    Thread t1 = new Thread(recepcionista);
+    Thread t2 = new Thread(veterinario);
+    t1.start();
+    t1.start();
+  }
+</code></pre>
+<h3>Descuentos</h3>
+<ul>
+<li><strong>-0.3</strong> — Crea ambos hilos pero no inicia el del veterinario: llama dos veces a <code>t1.start()</code> y nunca a <code>t2.start()</code>, por lo que el veterinario no se ejecuta (y el segundo <code>start()</code> sobre el mismo hilo lanza <code>IllegalThreadStateException</code>).</li>
+<li><strong>-0.2</strong> — No escribe las clases <code>Recepcionista</code> y <code>Veterinario</code> (solo las describe en un comentario, ni aquí ni en otra parte de la respuesta aparece su código).</li>
+</ul>
+<h3>Observaciones</h3>
+<p>Sin observaciones.</p>
+<h3>Nota del inciso</h3>
+<p><strong>0.1 / 0.6</strong></p>
+<hr />
+<h2>2.c — Justificación de while (0.6 pts)</h2>
+<h3>Transcripción</h3>
+<blockquote>
+<p>Se debe usar while en vez de if porque el hecho de que el Thread se &quot;despierte&quot; del while no garantiza que por fin se cumpla la condición que se esperaba, entonces el while garantiza que cuando realmente se cumpla la condición buscada sea cuando se ejecute lo establecido en el método.</p>
+<p>Ejemplo: según mi diseño, un veterinario, luego de retirar un animal hace un notifyAll(), que &quot;despierta&quot; a todos los Thread que se estaban ejecutando un synchronized de Box, esto en caso de que antes estuviera lleno el box y se haya liberado un espacio para que un recepcionista ingrese una mascota, pero si ahora no hay mascotas en el box y se &quot;despertó&quot; a un veterinario, este no puede atender a ninguna mascota por lo que debe seguir &quot;durmiendo&quot; (wait()).</p>
+</blockquote>
+<h3>Descuentos</h3>
+<p>Sin descuentos.</p>
+<h3>Observaciones</h3>
+<p>Sin observaciones.</p>
+<h3>Nota del inciso</h3>
+<p><strong>0.6 / 0.6</strong></p>
+<hr />
+<h2>2.d — notify() y notifyAll() (0.6 pts)</h2>
+<h3>Transcripción</h3>
+<blockquote>
+<p>notify() despierta a solo un Thread al azar, o según criterios de la JVM.(<em>)<br />
+notifyAll() despierta a todos los Thread.(</em>)</p>
+<p>(*) que estaban ejecutándose sobre un synchronized de Box.</p>
+<ul>
+<li>Yo utilicé notifyAll().</li>
+<li>Si hubiera usado notify() siguiendo el ejemplo anterior, se hubiera despertado a un veterinario que todavía no cumplía su condición, este se hubiera dormido, y ningún Thread se hubiera vuelto a despertar. Este es un error semántico grave de concurrencia.</li>
+</ul>
+</blockquote>
+<h3>Descuentos</h3>
+<p>Sin descuentos.</p>
+<h3>Observaciones</h3>
+<p>Sin observaciones.</p>
+<h3>Nota del inciso</h3>
+<p><strong>0.6 / 0.6</strong></p>
+<hr />
+<h2>Nota total</h2>
+<table>
+<thead>
+<tr>
+<th>Inciso</th>
+<th>Nota</th>
+<th>Máximo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2.a</td>
+<td>1.2</td>
+<td>1.2</td>
+</tr>
+<tr>
+<td>2.b</td>
+<td>0.1</td>
+<td>0.6</td>
+</tr>
+<tr>
+<td>2.c</td>
+<td>0.6</td>
+<td>0.6</td>
+</tr>
+<tr>
+<td>2.d</td>
+<td>0.6</td>
+<td>0.6</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>2.5</strong></td>
+<td><strong>3</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1>Corrección — Mauro Scardamaglia Galbusera — Punto 3</h1>
+<p><strong>Ejercicio 3 · Clase Object y clonación (2 puntos)</strong></p>
+<hr />
+<h2>3.a — Copia del plan y clonación profunda (1 pt)</h2>
+<h3>Transcripción literal</h3>
+<blockquote>
+<p>El problema radica en que se hace una clonación o copia superficial, al hacer esto ambos planes de tratamiento tienen la misma referencia a una única colección de vacunas.</p>
+<p>Esto se soluciona haciendo una clonación profunda, en el clone() del plan, luego de hacer la clonación superficial super.clone() se debe crear una nueva colección de vacunas, copiar cada vacuna del plan actual a la nueva colección, y asignar dicha colección al clón.</p>
+</blockquote>
+<h3>Descuentos</h3>
+<ul>
+<li><strong>-0.3</strong> — Explica correctamente el problema (copia superficial con la colección compartida) y la solución con <code>clone()</code> (lista nueva con una copia de cada vacuna), pero no escribe el código Java de la solución.</li>
+</ul>
+<h3>Observaciones</h3>
+<ul>
+<li>Sin observaciones.</li>
+</ul>
+<h3>Nota del inciso</h3>
+<p><strong>0.7 / 1</strong></p>
+<hr />
+<h2>3.b — Igualdad de vacunas en HashSet (1 pt)</h2>
+<h3>Transcripción literal</h3>
+<blockquote>
+<p>Esto ocurre porque no está redefinido el método hashCode() propio de la clase Object, entonces se define el hash según el criterio de Object que no concuerda con el criterio que busca Vacuna, entonces 2 instancias de Vacuna que se consideran iguales para Vacuna para Object no lo son.</p>
+<p>Una posible implementación de la redefinición de hashCode en Vacuna sería:</p>
+</blockquote>
+<pre><code class="language-java">class Vacuna ... {
+    private string nombre;
+    ...
+    ...
+
+@Override
+public int hashCode() { return Objects.hash(nombre); }
+</code></pre>
+<blockquote>
+<p>Luego para ser consistente, sería propicio redefinir equals con este mismo criterio.</p>
+</blockquote>
+<h3>Descuentos</h3>
+<ul>
+<li><strong>-1</strong> — No sobrescribe <code>equals(Object)</code>: el método que se pedía implementar es <code>equals()</code>, porque el <code>HashSet</code> usa <code>hashCode()</code> y también <code>equals()</code> para detectar repetidos, y como <code>Vacuna</code> sigue heredando de <code>Object</code> la igualdad por identidad, dos vacunas con el mismo medicamento se siguen considerando distintas aunque tengan el mismo código hash; solo mencionar que &quot;sería propicio&quot; redefinirlo no alcanza.</li>
+</ul>
+<h3>Observaciones</h3>
+<ul>
+<li>Sin observaciones.</li>
+</ul>
+<h3>Nota del inciso</h3>
+<p><strong>0 / 1</strong></p>
+<hr />
+<h2>Nota total del ejercicio</h2>
+<table>
+<thead>
+<tr>
+<th>Inciso</th>
+<th>Nota</th>
+<th>Máximo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3.a</td>
+<td>0.7</td>
+<td>1</td>
+</tr>
+<tr>
+<td>3.b</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>0.7</strong></td>
+<td><strong>2</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1>Corrección — Mauro Scardamaglia Galbusera — Punto 4</h1>
+<p><strong>Ejercicio 4 · Persistencia y patrones DAO / DTO</strong> (2 pts)</p>
+<hr />
+<h2>4.a — Diagrama de clases UML (0.8 pts)</h2>
+<h3>Transcripción</h3>
+<pre><code class="language-mermaid">classDiagram
+    class Clinica {
+        -DAOClinica dao
+        +Clinica(DAOClinica dao)
+        +void registrarMascota(Mascota m) throw MascotaDuplicadaException
+        +Mascota buscarMascota(int id)
+        +ArrayList~Mascota~ listarMascotas()
+        +void eliminarMascota(int id)
+    }
+    class Mascota {
+        -int id
+        -string nombre
+        -string especie
+        -string tutor
+        -localDate fechaNacimiento
+    }
+    class MascotaDuplicadaException {
+        //constructor
+    }
+    class DAOClinica {
+        &lt;&lt;interface&gt;&gt;
+        +void registrarMascota(Mascota mascota)
+        +Mascota buscarMascota(int id)
+        +ArrayList~Mascota~ listarMascotas()
+        +void eliminarMascota(int id)
+    }
+    class DAOXml {
+        -string archivo
+        +DAOXml(string archivo)
+    }
+    class DAOSql {
+        -string url
+        +DAOSql(string url)
+    }
+    Clinica *-- Mascota : compone
+    Clinica *-- DAOClinica
+    Clinica ..&gt; MascotaDuplicadaException : usa
+    DAOClinica ..&gt; Mascota : usa
+    DAOClinica &lt;|.. DAOXml : implementa
+    DAOClinica &lt;|.. DAOSql : implementa
+    note for Mascota &quot;es DTO. // respectivos constructor, getter y setters&quot;
+    note for MascotaDuplicadaException &quot;MascotaDuplicadaException extends Exception&quot;
+    note for DAOXml &quot;// implementa los metodos de DAO. persiste en XML&quot;
+    note for DAOSql &quot;// implementa los metodos de DAO&quot;
+</code></pre>
+<h3>Descuentos</h3>
+<ul>
+<li><strong>-0.2</strong> — No se indica si <code>Clinica</code>, <code>DAOXml</code>, <code>DAOSql</code>, <code>Mascota</code> y <code>MascotaDuplicadaException</code> son interfaz, clase abstracta o clase concreta (-0.05 por cada elemento, tope -0.2).</li>
+<li><strong>-0.05</strong> — Los métodos de la interfaz <code>DAOClinica</code> no lanzan ninguna excepción, por lo que los errores de persistencia no se pueden informar a <code>Clinica</code>.</li>
+</ul>
+<h3>Observaciones</h3>
+<p>Sin observaciones.</p>
+<h3>Nota del inciso: <strong>0.55 / 0.8</strong></h3>
+<hr />
+<h2>4.b — Implementación de <code>registrarMascota</code> (0.7 pts)</h2>
+<h3>Transcripción</h3>
+<pre><code class="language-java">class Clinica ... {
+    ...
+    ...
+    public void registrarMascota (Mascota m) throws MascotaDuplicadaException {
+
+        ArrayList &lt;Mascota&gt; mascotas = dao.listarMascotas();
+        for( Mascota mExis : mascotas ) {
+            if (mExis.getNombre().equals( m.getNombre())
+            &amp;&amp;
+                mExis.getTutor().equals( m.getTutor()) )
+                throw new MascotaDuplicadaException (m.getNombre());
+        }
+        dao.registrarMascota (m);
+    }
+</code></pre>
+<h3>Descuentos</h3>
+<p>Sin descuentos.</p>
+<h3>Observaciones</h3>
+<p>Sin observaciones.</p>
+<h3>Nota del inciso: <strong>0.70 / 0.7</strong></h3>
+<hr />
+<h2>4.c — <code>main</code> con SQL y cambio a XML (0.5 pts)</h2>
+<h3>Transcripción</h3>
+<pre><code class="language-java">class Prueba ... {
+    public void main (string args ...) {
+        DAO dao = new DAOSql (url);
+        Clinica clinica = new Clinica (dao);
+        try {
+            clinica.registrarMascota ( m );
+        }
+        catch ( MascotaDuplicadaException e)
+            { System.out.println( e.toString()); }
+    }
+</code></pre>
+<p>Anotaciones al margen:</p>
+<blockquote>
+<p>Hacia <code>url</code>: &quot;un string url con una dirección válida de BD sql.&quot;</p>
+<p>Hacia <code>m</code>: &quot;una Mascota ya instanciada.&quot;</p>
+</blockquote>
+<blockquote>
+<p>... para que la clínica use xml bastaría con cambiar la instancia del DAOsql a DAOXml y con pasarle por parámetro al respectivo constructor el nombre del archivo xml.<br />
+Es decir, cambiar lo seleccionado en el código subrayado en rojo.</p>
+</blockquote>
+<h3>Descuentos</h3>
+<ul>
+<li><strong>-0.1</strong> — No se crea la mascota: <code>m</code> se usa en <code>registrarMascota</code> sin haberse instanciado en el <code>main</code> (solo se aclara al margen que es &quot;una Mascota ya instanciada&quot;).</li>
+</ul>
+<h3>Observaciones</h3>
+<ul>
+<li>La variable del DAO se declara con el tipo <code>DAO</code>, que no coincide con el nombre de la interfaz del UML (<code>DAOClinica</code>), aunque se entiende a qué se refiere.</li>
+</ul>
+<h3>Nota del inciso: <strong>0.40 / 0.5</strong></h3>
+<hr />
+<h2>Nota total del ejercicio: <strong>1.65 / 2</strong></h2>
+<table>
+<thead>
+<tr>
+<th>Inciso</th>
+<th>Nota</th>
+<th>Máximo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4.a</td>
+<td>0.55</td>
+<td>0.8</td>
+</tr>
+<tr>
+<td>4.b</td>
+<td>0.70</td>
+<td>0.7</td>
+</tr>
+<tr>
+<td>4.c</td>
+<td>0.40</td>
+<td>0.5</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>1.65</strong></td>
+<td><strong>2</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1>Nota final</h1>
+<table>
+<thead>
+<tr>
+<th>Ejercicio</th>
+<th>Nota</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1,6</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2,5</td>
+</tr>
+<tr>
+<td>3</td>
+<td>0,7</td>
+</tr>
+<tr>
+<td>4</td>
+<td>1,65</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>6,45</strong></td>
+</tr>
+</tbody>
+</table>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ startOnLoad: false });
+    document.querySelectorAll("pre > code.language-mermaid").forEach(async (code, i) => {
+      try {
+        const { svg } = await mermaid.render("diagrama-" + i, code.textContent);
+        const div = document.createElement("div");
+        div.className = "mermaid-svg";
+        div.innerHTML = svg;
+        code.parentElement.replaceWith(div);
+      } catch (e) {}
+    });
+  }
+</script>
+</body>
+</html>
